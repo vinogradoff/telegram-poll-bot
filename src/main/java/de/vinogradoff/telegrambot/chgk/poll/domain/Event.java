@@ -1,6 +1,6 @@
 package de.vinogradoff.telegrambot.chgk.poll.domain;
 
-import java.text.*;
+import java.text.ParseException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
@@ -43,16 +43,17 @@ public record Event(LocalDateTime startTime, String dayOfWeek, String place, Str
 
 
     // convert to Day
-    var sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+    var sdf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
     var year = LocalDate.now().getYear();
-    if (sdf.parse(shortDate + "." + year + " 23:59").before(new Date())) year++; //if date in the past - take next year
-    var date = sdf.parse(shortDate + "." + year + " " + time);
+    if (LocalDateTime.parse(shortDate + "." + year + " 23:59", sdf).isBefore(LocalDateTime.now()))
+      year++; //if date in the past - take next year
+    var date = LocalDateTime.parse(shortDate + "." + year + " " + time, sdf);
 
-    var simpleDay = new SimpleDateFormat("EEEE", new Locale("ru"));
+    var simpleDay = DateTimeFormatter.ofPattern("EEEE", new Locale("ru"));
     var day = simpleDay.format(date);
 
     return new Event(
-            date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+            date,
             day,
             place,
             otherInformation

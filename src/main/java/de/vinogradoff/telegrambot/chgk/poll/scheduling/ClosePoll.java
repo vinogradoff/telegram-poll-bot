@@ -23,7 +23,7 @@ public class ClosePoll extends DefaultAbsSender implements Runnable {
 
   public void run() {
     var time = LocalDateTime.now().plus(Duration.ofSeconds(sleepTime));
-    System.out.print("will close " + messageId + " in " + sleepTime + " seconds. " +
+    System.out.println("will close " + messageId + " in " + sleepTime + " seconds. " +
             "That is:" + time.format(DateTimeFormatter.ISO_DATE_TIME));
     try {
       if (sleepTime >= 0) {
