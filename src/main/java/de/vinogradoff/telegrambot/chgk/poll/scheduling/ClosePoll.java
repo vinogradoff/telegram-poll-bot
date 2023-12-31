@@ -4,6 +4,9 @@ import org.telegram.telegrambots.bots.*;
 import org.telegram.telegrambots.meta.api.methods.polls.StopPoll;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+
 public class ClosePoll extends DefaultAbsSender implements Runnable {
 
   Integer messageId;
@@ -19,6 +22,9 @@ public class ClosePoll extends DefaultAbsSender implements Runnable {
   }
 
   public void run() {
+    var time = LocalDateTime.now().plus(Duration.ofSeconds(sleepTime));
+    System.out.print("will close " + messageId + " in " + sleepTime + " seconds. " +
+            "That is:" + time.format(DateTimeFormatter.ISO_DATE_TIME));
     try {
       if (sleepTime >= 0) {
         Thread.sleep(sleepTime * 1000);
