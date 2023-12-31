@@ -1,1 +1,1 @@
-worker: java -cp "build/libs/*" de.vinogradoff.Main
+worker: java -cp "build/libs/*" de.vinogradoff.telegrambot.chgk.poll.Main

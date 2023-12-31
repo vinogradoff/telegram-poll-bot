@@ -9,7 +9,7 @@ version = '1.0'
 jar {
     manifest {
         attributes(
-                "Main-Class": "de.vinogradoff.Main"
+                "Main-Class": "de.vinogradoff.telegrambot.chgk.poll.Main"
         )
     }
 
