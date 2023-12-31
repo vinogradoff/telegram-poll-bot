@@ -41,6 +41,10 @@ public class CustomPollBot extends TelegramLongPollingBot {
           message.setText("""
                       Формат: /chgk или /quiz <дата dd.mm> [время] [место] [другая информация]
                       Пример: /chgk 4.12 19:30 APROPO Турнир сложности 3.5
+                      
+                      или /chgk или /quiz <день недели> [время] [место] [другая информация]
+                      Примеры: /chgk ср 19:30 APROPO Турнир сложности 3.5
+                               /chgk четверг 19:30 APROPO Турнир сложности 3.5
                   """);
         } else if (cmd.startsWith("/chgk")) {
           eventPoll = createPoll(chatId, cmd,
