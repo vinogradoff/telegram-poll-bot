@@ -6,15 +6,21 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.text.*;
-import java.time.LocalDate;
-import java.util.*;
+import java.text.ParseException;
+import java.time.*;
+import java.util.List;
+
+import static java.time.format.DateTimeFormatter.ofPattern;
 
 public class CustomPollBot extends TelegramLongPollingBot {
 
+  String token;
+
   public CustomPollBot(String token) {
     super(token);
+    this.token = token;
   }
+
 
   @Override
   public void onUpdateReceived(Update update) {
@@ -24,32 +30,41 @@ public class CustomPollBot extends TelegramLongPollingBot {
         var cmd = update.getMessage().getText();
 
         var chatId = update.getMessage().getChatId().toString();
-        SendPoll poll = null;
+        EventPoll eventPoll = null;
         SendMessage message = null;
 
-        if (cmd.startsWith("/chgk")) {
-          poll = createPoll(chatId, cmd,
-                  "ЧГК %s, начало в %s в %s",
-                  "???", "19:30", "APROPO");
-        } else if (cmd.startsWith("/quiz")) {
-          poll = createPoll(chatId, cmd,
-                  "Квиз %s, начало в %s в %s",
-                  "???", "17:00", "мебельном");
-        } else if (cmd.startsWith("/")) {
+        if (cmd.startsWith("/") && cmd.split(" ").length == 1) {
           message = new SendMessage();
           message.setChatId(chatId);
           message.setText("""
-                      Формат: /chgk или /quiz <дата dd.mm> [время] [место]
-                      время, место (опциональные)- одним словом        
+                      Формат: /chgk или /quiz <дата dd.mm> [время] [место] [другая информация]
+                      Пример: /chgk 4.12 19:30 APROPO Турнир сложности 3.5
                   """);
+        } else if (cmd.startsWith("/chgk")) {
+          eventPoll = createPoll(chatId, cmd,
+                  "ЧГК %s, начало в %s в %s",
+                  "19:30", "APROPO");
+        } else if (cmd.startsWith("/quiz")) {
+          eventPoll = createPoll(chatId, cmd,
+                  "Квиз %s, начало в %s в %s",
+                  "17:00", "мебельном");
         }
 
-        if (poll != null) {
-          execute(poll);
+        if (eventPoll != null) {
+          var msg = execute(eventPoll.poll());
+          var timeUntilPollIsClosedInSeconds = EventPoll.calulateTimeToEvent(
+                  LocalDateTime.now(), eventPoll.event(), Duration.ofHours(1));
+
+          new Thread(new ClosePoll(this.token,
+                  timeUntilPollIsClosedInSeconds,
+                  chatId,
+                  msg.getMessageId()))
+                  .start();
         }
         if (message != null) {
           execute(message);
         }
+
       }
     } catch (TelegramApiException | ParseException e) {
       e.printStackTrace();
@@ -63,41 +78,40 @@ public class CustomPollBot extends TelegramLongPollingBot {
     return "vino_chgk_poll_bot";
   }
 
-  private SendPoll createPoll(String chatId, String cmd,
+  private EventPoll createPoll(String chatId, String cmd,
                               String questionFormat,
-                              String date, String time, String place) throws ParseException {
-    var question = parseCmd(questionFormat, cmd,
-            date, time, place);
+                               String defaultTime, String defaultPlace) throws ParseException {
+
+    var event = Event.fromCmdArgs(enrichCommand(cmd, defaultTime, defaultPlace));
+    var question = formatQuestion(questionFormat, event);
     var poll = new SendPoll();
     poll.setChatId(chatId);
     poll.setQuestion(question);
     poll.setOptions(List.of("Буду", "Не буду", "Не знаю ещё"));
     poll.setIsAnonymous(false);
-    return poll;
+    return new EventPoll(event, poll);
   }
 
-  private String parseCmd(String questionFormat, String cmd, String... param) throws ParseException {
-    var list = param;
-    var parts = cmd.split(" ");
-    var size = parts.length;
-    if (size >= 4) {
-      list[2] = parts[3];
-    }
-    if (size >= 3) {
-      list[1] = parts[2];
-    }
-    if (size >= 2) {
-      list[0] = parts[1];
-      // convert to Day
-      var sdf = new SimpleDateFormat("dd.MM.yyyy");
-      var year = LocalDate.now().getYear();
-      var date = sdf.parse(list[0] + "." + year);
-      var simpleDay = new SimpleDateFormat("EEEE", new Locale("ru"));
-      var day = simpleDay.format(date);
-      list[0] += " (" + day + ")";
-    }
+  private String enrichCommand(String cmd, String defaultTime, String defaultPlace) {
+    var numberOfParameters = cmd.split(" ").length - 1;
+    switch (numberOfParameters) {
+      case 2:
+        cmd += " " + defaultPlace;
+        break;
+      case 1:
+        cmd += " " + defaultTime + " " + defaultPlace;
+        break;
 
-    return String.format(questionFormat, (Object[]) list);
+    }
+    return cmd;
   }
+
+  private String formatQuestion(String questionFormat, Event event) {
+    return String.format(questionFormat,
+            event.startTime().format(ofPattern("dd.MM")) + "(" + event.dayOfWeek() + ")",
+            event.startTime().format(ofPattern("HH:mm")),
+            event.place() + " " + event.otherInformation());
+  }
+
 
 }
