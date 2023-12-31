@@ -1,4 +1,4 @@
-package de.vinogradoff;
+package de.vinogradoff.telegrambot.chgk.poll.domain;
 
 import org.telegram.telegrambots.meta.api.methods.polls.SendPoll;
 

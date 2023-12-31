@@ -1,5 +1,7 @@
-package de.vinogradoff;
+package de.vinogradoff.telegrambot.chgk.poll;
 
+import de.vinogradoff.telegrambot.chgk.poll.domain.*;
+import de.vinogradoff.telegrambot.chgk.poll.scheduling.ClosePoll;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.polls.SendPoll;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;

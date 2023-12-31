@@ -1,4 +1,4 @@
-package de.vinogradoff;
+package de.vinogradoff.telegrambot.chgk.poll;
 
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;

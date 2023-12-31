@@ -1,4 +1,4 @@
-package de.vinogradoff;
+package de.vinogradoff.telegrambot.chgk.poll.scheduling;
 
 import org.telegram.telegrambots.bots.*;
 import org.telegram.telegrambots.meta.api.methods.polls.StopPoll;
