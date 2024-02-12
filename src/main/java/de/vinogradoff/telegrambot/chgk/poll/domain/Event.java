@@ -1,6 +1,5 @@
 package de.vinogradoff.telegrambot.chgk.poll.domain;
 
-import java.text.ParseException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
@@ -16,9 +15,8 @@ public record Event(LocalDateTime startTime, String dayOfWeek, String place, Str
    *                param3: any text
    *                param4: any text
    * @return event
-   * @throws ParseException if param1 or param2 malformed
    */
-  public static Event fromCmdArgs(String cmdArgs) throws ParseException {
+  public static Event fromCmdArgs(String cmdArgs) {
     var parts = Arrays.asList(cmdArgs.split(" "));
     if (parts.size() < 4) throw new RuntimeException("Must be at least 3 parts");
     // date or day of week
@@ -35,21 +33,23 @@ public record Event(LocalDateTime startTime, String dayOfWeek, String place, Str
     var otherInformation = ""; // optional
     if (parts.size() > 4) {
       // add all other arguments
+      StringBuilder otherInformationBuilder = new StringBuilder();
       for (int i = 4; i < parts.size(); i++) {
-        otherInformation += parts.get(i) + " ";
+        otherInformationBuilder.append(parts.get(i)).append(" ");
       }
+      otherInformation = otherInformationBuilder.toString();
       otherInformation = otherInformation.trim();
     }
 
 
     // convert to Day
-    var sdf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+    var sdf = DateTimeFormatter.ofPattern("d.M.yyyy HH:mm");
     var year = LocalDate.now().getYear();
     if (LocalDateTime.parse(shortDate + "." + year + " 23:59", sdf).isBefore(LocalDateTime.now()))
       year++; //if date in the past - take next year
     var date = LocalDateTime.parse(shortDate + "." + year + " " + time, sdf);
 
-    var simpleDay = DateTimeFormatter.ofPattern("EEEE", new Locale("ru"));
+    var simpleDay = DateTimeFormatter.ofPattern("EEEE", Locale.forLanguageTag("ru"));
     var day = simpleDay.format(date);
 
     return new Event(
@@ -63,22 +63,28 @@ public record Event(LocalDateTime startTime, String dayOfWeek, String place, Str
 
   private static DayOfWeek parseRussianDay(String russianDay) {
     switch (russianDay.toLowerCase()) {
-      case "понедельник", "пн":
+      case "понедельник", "пн" -> {
         return DayOfWeek.MONDAY;
-      case "вторник", "вт":
+      }
+      case "вторник", "вт" -> {
         return DayOfWeek.TUESDAY;
-      case "среда", "ср":
+      }
+      case "среда", "ср" -> {
         return DayOfWeek.WEDNESDAY;
-      case "четверг", "чт":
+      }
+      case "четверг", "чт" -> {
         return DayOfWeek.THURSDAY;
-      case "пятница", "пт":
+      }
+      case "пятница", "пт" -> {
         return DayOfWeek.FRIDAY;
-      case "суббота", "сб":
+      }
+      case "суббота", "сб" -> {
         return DayOfWeek.SATURDAY;
-      case "воскресенье", "вс":
+      }
+      case "воскресенье", "вс" -> {
         return DayOfWeek.SUNDAY;
-      default:
-        throw new RuntimeException("Invalid day of week: " + russianDay);
+      }
+      default -> throw new RuntimeException("Invalid day of week: " + russianDay);
     }
   }
 }
