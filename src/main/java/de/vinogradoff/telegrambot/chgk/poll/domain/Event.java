@@ -43,7 +43,7 @@ public record Event(LocalDateTime startTime, String dayOfWeek, String place, Str
 
 
     // convert to Day
-    var sdf = DateTimeFormatter.ofPattern("d.M.yyyy HH:mm");
+    var sdf = DateTimeFormatter.ofPattern("d.M.yyyy H:mm");
     var year = LocalDate.now().getYear();
     if (LocalDateTime.parse(shortDate + "." + year + " 23:59", sdf).isBefore(LocalDateTime.now()))
       year++; //if date in the past - take next year
