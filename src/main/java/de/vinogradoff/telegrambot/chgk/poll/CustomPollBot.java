@@ -49,7 +49,7 @@ public class CustomPollBot extends TelegramLongPollingBot {
         } else if (cmd.startsWith("/chgk")) {
           eventPoll = createPoll(chatId, cmd,
                   "ЧГК %s, начало в %s в %s",
-                  "19:30", "APROPO");
+                  "19:30", "Lu Fung");
         } else if (cmd.startsWith("/quiz")) {
           eventPoll = createPoll(chatId, cmd,
                   "Квиз %s, начало в %s в %s",
