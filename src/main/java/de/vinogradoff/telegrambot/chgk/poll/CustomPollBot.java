@@ -72,6 +72,24 @@ public class CustomPollBot extends TelegramLongPollingBot {
                   "17:00",
                   "мебельном",
                   "");
+        } else if (cmd.startsWith("кимков")) {
+          while (params.size() < 6) {
+            params.add(null);
+          }
+          eventPoll = createPoll(chatId, params,
+                  "Беседа на тему %s, %s в %s по адресу %s",
+                  List.of("Буду",
+                          "Буду с +1",
+                          "Буду с +2",
+                          "Не знаю ещё",
+                          "Не буду",
+                          "Посмотреть ответы"
+                  ),
+                  "",
+                  "17:00",
+                  "Frixheimer Str. 9, 50767 Köln",
+                  ". Рассказывает Александр Кимков. " +
+                          "В помещении до 12 мест. Вход бесплатный. Есть коробочка для донатов. ");
         }
 
         if (eventPoll != null) {
@@ -136,10 +154,20 @@ public class CustomPollBot extends TelegramLongPollingBot {
   }
 
   private String formatQuestion(String questionFormat, Event event) {
-    return String.format(questionFormat,
-            event.startTime().format(ofPattern("dd.MM")) + "(" + event.dayOfWeek() + ")",
-            event.startTime().format(ofPattern("HH:mm")),
-            event.place() + " " + event.otherInformation());
+    String msg = "";
+    if (event.topic().equals("")) {
+      msg = String.format(questionFormat,
+              event.startTime().format(ofPattern("dd.MM")) + "(" + event.dayOfWeek() + ")",
+              event.startTime().format(ofPattern("HH:mm")),
+              event.place() + " " + event.otherInformation());
+    } else {
+      msg = String.format(questionFormat,
+              event.topic(),
+              event.startTime().format(ofPattern("dd.MM")) + "(" + event.dayOfWeek() + ")",
+              event.startTime().format(ofPattern("HH:mm")),
+              event.place() + " " + event.otherInformation());
+    }
+    return msg;
   }
 
 
