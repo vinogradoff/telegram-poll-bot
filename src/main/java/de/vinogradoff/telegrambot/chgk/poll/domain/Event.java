@@ -1,24 +1,26 @@
 package de.vinogradoff.telegrambot.chgk.poll.domain;
 
+import org.apache.tools.ant.types.Commandline;
+
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
-public record Event(LocalDateTime startTime, String dayOfWeek, String place, String otherInformation) {
+public record Event(LocalDateTime startTime, String dayOfWeek, String topic, String place, String otherInformation) {
 
   /**
-   * @param cmdArgs must be at least 3 parameters "/cmd param1 param2 param3 [param4] [more paramX]".
-   *                Formats
-   *                param1: dd.MM (Date) or day (in Russion) понедельник, пн
-   *                param2: HH:mm (Time)
-   *                param3: any text
-   *                param4: any text
+   * @param parts must be at least 3 parameters "/cmd param1 param2 [param3] [param4] [more paramX]".
+   *              Formats
+   *              param1: dd.MM (Date) or day (in Russion) понедельник, пн
+   *              param2: HH:mm (Time)
+   *              param3: topic
+   *              param4: place
+   *              param5: any text
    * @return event
    */
-  public static Event fromCmdArgs(String cmdArgs) {
-    var parts = Arrays.asList(cmdArgs.split(" "));
-    if (parts.size() < 4) throw new RuntimeException("Must be at least 3 parts");
+  public static Event fromCmdArgs(List<String> parts, String defaultTopic, String defaultTime, String defaultPlace, String defaultOtherInformation) {
+    if (parts.size() < 2) throw new RuntimeException("Must be at least cmd and 1 params");
     // date or day of week
     String shortDate;
     if (Character.isLetter(parts.get(1).charAt(0))) {
@@ -28,20 +30,23 @@ public record Event(LocalDateTime startTime, String dayOfWeek, String place, Str
     } else {
       shortDate = parts.get(1);
     }
-    var time = parts.get(2);
-    var place = parts.get(3);
+    var topic = parts.get(2) == null ? defaultTopic : parts.get(2);
+    var time = parts.get(3) == null ? defaultTime : parts.get(3);
+    var place = parts.get(4) == null ? defaultPlace : parts.get(4);
+
     var otherInformation = ""; // optional
-    if (parts.size() > 4) {
+    if (parts.size() > 6) {
       // add all other arguments
       StringBuilder otherInformationBuilder = new StringBuilder();
-      for (int i = 4; i < parts.size(); i++) {
+      for (int i = 5; i < parts.size(); i++) {
         otherInformationBuilder.append(parts.get(i)).append(" ");
       }
       otherInformation = otherInformationBuilder.toString();
       otherInformation = otherInformation.trim();
+    } else {
+      otherInformation = parts.get(5) == null ? defaultOtherInformation : parts.get(5);
+
     }
-
-
     // convert to Day
     var sdf = DateTimeFormatter.ofPattern("d.M.yyyy H:mm");
     var year = LocalDate.now().getYear();
@@ -55,11 +60,13 @@ public record Event(LocalDateTime startTime, String dayOfWeek, String place, Str
     return new Event(
             date,
             day,
+            topic,
             place,
             otherInformation
     );
 
   }
+
 
   private static DayOfWeek parseRussianDay(String russianDay) {
     switch (russianDay.toLowerCase()) {
@@ -86,5 +93,14 @@ public record Event(LocalDateTime startTime, String dayOfWeek, String place, Str
       }
       default -> throw new RuntimeException("Invalid day of week: " + russianDay);
     }
+  }
+
+  public static Event fromCmdArgs(String cmd, String defaultTopic, String defaultTime, String defaultPlace, String defaultOtherInformation) {
+    List<String> parts = new ArrayList<>(Arrays.asList(Commandline.translateCommandline(cmd)));
+    while (parts.size() < 6) {
+      parts.add(null);
+    }
+
+    return fromCmdArgs(parts, defaultTopic, defaultTime, defaultPlace, defaultOtherInformation);
   }
 }
