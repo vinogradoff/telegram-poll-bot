@@ -69,8 +69,8 @@ public class CustomPollBot extends TelegramLongPollingBot {
                   "Квиз %s, начало в %s в %s",
                   List.of("Буду", "Не буду", "Не знаю ещё"),
                   "",
-                  "17:00",
-                  "мебельном",
+                  "19:00",
+                  "Clubhaus DSC 99 e.V.",
                   "");
         } else if (cmd.startsWith("кимков")) {
           while (params.size() < 6) {
