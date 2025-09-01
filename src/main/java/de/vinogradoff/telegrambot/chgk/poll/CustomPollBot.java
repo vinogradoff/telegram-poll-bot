@@ -89,7 +89,7 @@ public class CustomPollBot extends TelegramLongPollingBot {
                   "17:00",
                   "Frixheimer Str. 9, 50767 Köln",
                   ". Рассказывает Александр Кимков. " +
-                          "В помещении до 12 мест. Вход бесплатный. Есть коробочка для донатов. ");
+                          "В помещении до 12 мест. Вход 10 евро. ");
         }
 
         if (eventPoll != null) {
