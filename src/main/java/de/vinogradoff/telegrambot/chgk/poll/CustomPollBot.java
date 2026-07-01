@@ -48,7 +48,7 @@ public class CustomPollBot extends TelegramLongPollingBot {
                       Примеры: /chgk ср 19:30 APROPO Турнир сложности 3.5
                                /chgk четверг 19:30 APROPO Турнир сложности 3.5
                   """);
-        } else if (cmd.startsWith("/chgk") || cmd.startsWith("чгк")) {
+        } else if (cmd.startsWith("/chgk") || cmd.toLowerCase().startsWith("чгк")) {
           params.add(2, "");
           while (params.size() < 6) {
             params.add(null);
@@ -60,7 +60,7 @@ public class CustomPollBot extends TelegramLongPollingBot {
                   "19:15",
                   "Lu Fung",
                   "");
-        } else if (cmd.startsWith("/quiz")) {
+        } else if (cmd.startsWith("/quiz") || cmd.toLowerCase().startsWith("квиз")) {
           params.add(2, "");
           while (params.size() < 6) {
             params.add(null);
