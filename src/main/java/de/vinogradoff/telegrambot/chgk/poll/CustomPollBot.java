@@ -57,7 +57,7 @@ public class CustomPollBot extends TelegramLongPollingBot {
                   "ЧГК %s, начало в %s в %s",
                   List.of("Буду", "Не буду", "Не знаю ещё"),
                   "",
-                  "19:30",
+                  "19:15",
                   "Lu Fung",
                   "");
         } else if (cmd.startsWith("/quiz")) {
